@@ -1,0 +1,19 @@
+Techstack
+- [ ] Docker, Poetry
+- [.] Django
+- [.] Postgresql
+- [.] Redis, Celery, Flower
+
+Tasks
+- [ ] Create a Django project with Docker and Poetry
+- [.] Create models for the database
+- [.] Create views and serializers for the API
+- [.] Create endpoints to retrieve the report and check task status
+- [.] Create a Celery task to process the data and generate reports
+- [.] Create templates for the frontend
+
+Things left to do
+- [ ] Create download button in report.html template
+- [ ] Update UI for the templates
+- [ ] Create a Dockerfile
+- [ ] Create a docker-compose file

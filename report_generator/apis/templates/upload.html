@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Report Generator</title>
+</head>
+<body>
+
+    <h1>Feedback Report Generator</h1>
+
+    <form id="jsonForm">
+        {% csrf_token %}
+        <label>Paste student/ students event JSON:</label><br/>
+        <textarea id="jsonInput" rows="10" cols="50">{{ jsonData }}</textarea><br/>
+        <br>
+        <button type="submit">Generate {{uploadType | upper}} Report</button>
+    </form>
+      
+    <div id="status"></div>
+    <div id="result"></div>
+
+    <a href="/">Go Home</a>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        const csrftoken = getCookie('csrftoken');
+    
+        document.getElementById('jsonForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            const jsonInput = document.getElementById('jsonInput').value;
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+    
+            statusDiv.innerHTML = 'Creating task to generate report...';
+            resultDiv.innerHTML = '';
+    
+            fetch('/assignment/{{uploadType}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken  // 🔑 This is required
+                },
+                body: JSON.stringify({ jsondata: jsonInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    statusDiv.innerHTML = 'Task created to generate report!';
+                    resultDiv.innerHTML = `<a href="/assignment/{{uploadType}}/${data.task_id}">Check status</a>`;
+                } else {
+                    statusDiv.innerHTML = 'Error generating report: ' + data.error;
+                }
+            })
+            .catch(error => {
+                statusDiv.innerHTML = 'Error: ' + error.message;
+            });
+        });
+    </script>    
+
+</body>
+</html>

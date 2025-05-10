@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Report Generator</title>
+</head>
+<body>
+    <h1>Feedback Report Generator</h1>
+
+    <a href="/assignment/html">Generate HTML Report</a>
+    <br><br>
+    <a href="/assignment/pdf">Generate PDF Report</a>
+
+    <h2>Recent Reports</h2>
+    <ul>
+      {% for report in recent_reports %}
+        <li>
+          {{ report.created_at|date:"Y-m-d H:i" }} -
+          {{ report.report_type }} -
+          <a href="/assignment/{{ report.report_type|lower }}/{{ report.task_id }}">
+            View Report
+          </a>
+        </li>
+      {% empty %}
+        No reports generated yet.
+      {% endfor %}
+    </ul>
+
+</body>
+</html>
