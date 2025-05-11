@@ -1,0 +1,72 @@
+services:
+
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: report_db
+      POSTGRES_USER: report_user
+      POSTGRES_PASSWORD: report_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    volumes: 
+      - .:/app
+    command: >
+      sh -c "
+        cd report_generator &&
+        poetry run python manage.py migrate &&
+        poetry run python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=report_db
+      - DB_USER=report_user
+      - DB_PASSWORD=report_pass
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+  celery:
+    build: .
+    volumes: 
+      - .:/app
+    command: >
+      sh -c "
+        cd report_generator &&
+        poetry run celery -A tasks worker --loglevel=info"
+    depends_on:
+      - web
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+  flower:
+    build: .
+    command: >
+      sh -c "
+        cd report_generator &&
+        poetry run celery -A tasks flower"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - celery
+    volumes:
+      - .:/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:

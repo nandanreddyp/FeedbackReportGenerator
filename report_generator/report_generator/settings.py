@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -88,11 +89,11 @@ WSGI_APPLICATION = 'report_generator.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'reports_db',
-        'USER': 'developer',
-        'PASSWORD': 'helloworld',
-        'HOST': 'localhost',
-        'PORT': '5433',
+        'NAME': os.getenv('DB_NAME', 'report_db'),  # from environment variables
+        'USER': os.getenv('DB_USER', 'report_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'report_pass'),
+        'HOST': os.getenv('DB_HOST', 'db'),  # 'db' is the service name in docker-compose
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -142,8 +143,8 @@ REPORT_URL = '/reports/'
 REPORT_ROOT = BASE_DIR / 'reports' / 'files'
 
 # Celery configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis as the broker
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Redis as the backend
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
