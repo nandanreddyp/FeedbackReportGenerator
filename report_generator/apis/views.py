@@ -14,7 +14,7 @@ import secrets
 # Create your views here.
 
 def index(request):
-    recent_reports = Report.objects.order_by('-created_at')[:5]
+    recent_reports = Report.objects.order_by('-created_at')
     return render(request, template_name='index.html', context={'recent_reports': recent_reports}, status=200)
 
 class GenerateHtmlReportView(View):
